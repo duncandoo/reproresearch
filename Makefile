@@ -16,9 +16,6 @@ KEYRFILES= load clean functions
 RFILES := $(wildcard $(RDIR)/*.R)
 RFILES := $(filter-out $(RDIR)/main.R, $(RFILES))
 
-#list of analysis files
-SUBRFILES:= $(filter-out $(RDIR)/$(KEYRFILES).R, $(RFILES))
-
 # pdf figures created by R
 PDFFIGS := $(wildcard $(FIGDIR)/*.pdf)
 
@@ -39,27 +36,20 @@ $(TEXDIR)/$(TEXFILE).pdf: $(TEXDIR)/$(TEXFILE).tex $(OUT_FILES) $(CROP_FILES)
 
 # R file dependencies are listed here.
 # The order goes load.R > clean.R > functions.R > the rest of the .R files
-$(RDIR)/load.Rout: $(RDIR)/load.R 
-	R CMD BATCH $< 
 
-$(RDIR)/clean.Rout: $(RDIR)/clean.R $(RDIR)/load.Rout 
-	R CMD BATCH $< 
+$(RDIR)/clean.Rout: $(RDIR)/load.Rout 
 
-$(RDIR)/functions.Rout: $(RDIR)/functions.R $(RDIR)/clean.Rout 
-	R CMD BATCH $< 
+$(RDIR)/functions.Rout: $(RDIR)/clean.Rout 
 
-# RUN EVERY OTHER R FILE dependent on functions.R
-$(RDIR)/$(SUBRFILES).Rout: $(RDIR)/$(SUBRFILES).R $(RDIR)/functions.Rout 
+$(filter-out $(RDIR)/$(KEYRFILES).Rout, $(RDIR)/$(OUTFILES)): $(RDIR)/$(KEYRFILES).Rout 
+
+# RUN EVERY R FILE dependent on functions.R
+$(RDIR)/%.Rout: $(RDIR)/%.R
 	R CMD BATCH $< 
 
 # CROP EVERY PDF FIG FILE
 $(FIGDIR)/%.pdfcrop: $(FIGDIR)/%.pdf
 	pdfcrop $< $< && touch $@
-
-
-	
-# Run R files
-R: $(OUT_FILES)
 
 # View the resulting PDF file
 view: $(TEXDIR)/$(TEXFILE).pdf
