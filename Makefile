@@ -4,6 +4,7 @@ TEXFILE= paper
 TEXDIR= ./tex
 RDIR= .
 FIGDIR= ./figures
+KEYRFILES= load clean functions
 
 #CONVENTIONS:
 # load.R - loads the data from disk
@@ -11,9 +12,12 @@ FIGDIR= ./figures
 # functions.R - custom functions relied on by analysis
 # main.R - will not be run.
 
-# list R files, them exclude "main.R"
+# list R files, then exclude "main.R"
 RFILES := $(wildcard $(RDIR)/*.R)
 RFILES := $(filter-out $(RDIR)/main.R, $(RFILES))
+
+#list of analysis files
+SUBRFILES:= $(filter-out $(RDIR)/$(KEYRFILES).R, $(RFILES))
 
 # pdf figures created by R
 PDFFIGS := $(wildcard $(FIGDIR)/*.pdf)
