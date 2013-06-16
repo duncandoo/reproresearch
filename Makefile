@@ -28,23 +28,7 @@ OUT_FILES:= $(RFILES:.R=.Rout)
 # Indicator files to show pdfcrop has run
 CROP_FILES:= $(PDFFIGS:.pdf=.pdfcrop)
 
-all: $(TEXDIR)/$(TEXFILE).pdf $(OUT_FILES) $(CROP_FILES)
-
-# R file dependencies are listed here.
-# The order goes load.R > clean.R > functions.R > the rest of the .R files
-$(RDIR)/clean.Rout: $(RDIR)/clean.R $(RDIR)/load.Rout 
-	R CMD BATCH $< 
-
-$(RDIR)/functions.Rout: $(RDIR)/functions.R $(RDIR)/clean.Rout 
-	R CMD BATCH $< 
-
-# RUN EVERY R FILE dependent on functions.R
-$(RDIR)/%.Rout: $(RDIR)/%.R $(RDIR)/functions.Rout 
-	R CMD BATCH $< 
-
-# CROP EVERY PDF FIG FILE
-$(FIGDIR)/%.pdfcrop: $(FIGDIR)/%.pdf
-	pdfcrop $< $< && touch $@
+all: $(TEXDIR)/$(TEXFILE).pdf
 
 # Compile main tex file
 $(TEXDIR)/$(TEXFILE).pdf: $(TEXDIR)/$(TEXFILE).tex $(OUT_FILES) $(CROP_FILES)
@@ -52,6 +36,27 @@ $(TEXDIR)/$(TEXFILE).pdf: $(TEXDIR)/$(TEXFILE).tex $(OUT_FILES) $(CROP_FILES)
 	cd $(TEXDIR); latexmk -pdf -quiet $(TEXFILE)
 #	rubber --pdf $(TEXFILE)
 #	rubber-info $(TEXFILE)
+
+# R file dependencies are listed here.
+# The order goes load.R > clean.R > functions.R > the rest of the .R files
+$(RDIR)/load.Rout: $(RDIR)/load.R 
+	R CMD BATCH $< 
+
+$(RDIR)/clean.Rout: $(RDIR)/clean.R $(RDIR)/load.Rout 
+	R CMD BATCH $< 
+
+$(RDIR)/functions.Rout: $(RDIR)/functions.R $(RDIR)/clean.Rout 
+	R CMD BATCH $< 
+
+# RUN EVERY OTHER R FILE dependent on functions.R
+$(RDIR)/$(SUBRFILES).Rout: $(RDIR)/$(SUBRFILES).R $(RDIR)/functions.Rout 
+	R CMD BATCH $< 
+
+# CROP EVERY PDF FIG FILE
+$(FIGDIR)/%.pdfcrop: $(FIGDIR)/%.pdf
+	pdfcrop $< $< && touch $@
+
+
 	
 # Run R files
 R: $(OUT_FILES)
@@ -61,6 +66,9 @@ view: $(TEXDIR)/$(TEXFILE).pdf
 	"c:\Program Files\RStudio\bin\sumatra\sumatrapdf" $(TEXFILE).pdf &
 #	evince $(TEXFILE).pdf &
 
+.DELETE_ON_ERROR:
+.PHONY: all clean
+
 # Clean up stray files
 clean:
 	rm -fv $(OUT_FILES) 
@@ -69,4 +77,4 @@ clean:
 	rm -fv *.fdb_latexmk *.fls
 	rm -fv $(TEXFILE).pdf
 
-.PHONY: all clean
+
