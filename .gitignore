@@ -1,6 +1,7 @@
 # Created as part of the make process
 *.Rout
 *.pdfcrop
+*.pdf
 
 # Workspace specific R files
 *.RData
