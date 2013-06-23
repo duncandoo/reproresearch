@@ -1,0 +1,39 @@
+<<baresettings, echo=FALSE>>=
+opts_knit$set(self.contained=FALSE)
+opts_chunk$set(echo=FALSE, comment=NA, results='asis')
+set_parent("standaloneParent.Rnw")
+read_chunk("petData.R")
+@ %
+
+<<petData>>=
+@ %
+
+\pgfplotstableread [row sep=\\, col sep=&, ignore chars={\^^M}]{%
+<<>>=
+print(prettyTable, only.contents=TRUE, hline.after=NULL)
+@ %
+}\pettable    
+\begin{tikzpicture}
+  \begin{axis}
+		[ybar,
+		xlabel={Colour of Pet}, 
+		ylabel={Number of animals},
+		symbolic x coords={Cat, Dog},
+		xtick=data,
+		axis x line=bottom,
+		axis y line=left,
+    \onlyifstandalone{
+      title={Colour of pets by type of pet.},
+      legend entries={Black, Brown, Gray, Yellow},
+      legend style={legend pos=outer north east}
+		}]	
+			\addplot table [x=Animal, y=Black]{\pettable};
+        \label{plot:black}
+			\addplot table [x=Animal, y=Brown]{\pettable};
+        \label{plot:brown}
+			\addplot table [x=Animal, y=Gray]{\pettable};
+        \label{plot:gray}
+			\addplot table [x=Animal, y=Yellow]{\pettable};
+        \label{plot:yellow}
+	\end{axis}
+\end{tikzpicture}

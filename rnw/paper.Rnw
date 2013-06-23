@@ -1,0 +1,61 @@
+\documentclass{article}
+
+<<mainSettings, echo=FALSE>>=
+opts_chunk$set(echo=FALSE, comment=NA, results='asis')
+@
+
+\usepackage[T1]{fontenc}
+\usepackage{float}
+\usepackage{standalone}
+
+\usepackage{pgfplots}
+  \pgfplotsset{compat=1.5.1,%
+    width=0.7\linewidth,%
+		every non boxed x axis/.style={x axis line style={-},xtick align=outside},%
+		scale only axis%
+		}
+
+\title{Sample for integrating standalone figures with a main document and making both reproducible}
+\author{Duncan McPherson}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This file was generated using R, RStudio, standalone and knitr. Here is a citation \cite{IsaacNewton}.
+
+\section{In main document}
+
+An example of a figure that is inserted into this paper is shown in figure \ref{fig:barePGFFigure}.
+The file \emph{barePGFFigure.Rnw} can be compiled separately because its parent is set to a simple shell \emph{standaloneParent.Rnw} to produce a standalone figure, for example to be put into a presentation.
+However, if the bare figure is called as a child of the main document it is inserted normally.
+There is obvious redundancy in this example because petData.R is being called twice, but in real life you are unlikely to want to insert the same information in both table and figure formats.
+
+\section{In table format}
+<<>>=
+read_chunk("petData.R")
+@
+<<petData>>=
+@ 
+This is a pretty \LaTeX~ table that could be inserted into another document, like a journal paper, and be referenced as table \ref{\Sexpr{label(prettyTable)}}.
+<<echo=FALSE, results='asis'>>=
+print(prettyTable, include.rownames=FALSE)
+@
+
+\section{In plot format}
+Now I want the same data displayed in a plot.
+
+\begin{figure}[htb]
+  \centering
+<<child, child='barePGFFigure.Rnw'>>=
+@ %
+  \caption{\Sexpr{caption(prettyTable)}. Black, \ref{plot:black}, brown, \ref{plot:brown}, gray, \ref{plot:gray} and yellow, \ref{plot:yellow} pets are inculded.}
+	\label{fig:barePGFFigure}
+\end{figure}
+
+
+\bibliographystyle{plain}
+\bibliography{bibliography} %You need a file 'bibliography.bib' for this.
+
+\end{document}

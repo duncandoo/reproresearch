@@ -1,0 +1,18 @@
+\documentclass{standalone}
+%This is a shell of a parent, in order to allow figures to be compiled 'standalone'.
+
+<<settings, echo=FALSE>>=
+opts_chunk$set(echo=FALSE, comment=NA, results='asis')
+@ %
+\usepackage{pgfplots}
+  \pgfplotsset{compat=1.5.1,%
+  every non boxed x axis/.style={x axis line style={-},xtick align=outside},%
+  scale only axis%
+  }
+
+\begin{document}
+
+
+
+
+\end{document}
